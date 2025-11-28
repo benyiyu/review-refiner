@@ -29,7 +29,7 @@ export async function POST(req: Request) {
     }
 
     const genAI = new GoogleGenerativeAI(apiKey)
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-001" })
+    const model = genAI.getGenerativeModel({ model: "gemini-pro" })
 
     const systemPrompt = `You refine messy notes into a clear restaurant review.
 Return STRICT JSON only, no explanations.
@@ -79,5 +79,6 @@ Rules:
       { error: error?.message || "Unexpected error" },
       { status: 500 }
     )
+    
   }
 }
