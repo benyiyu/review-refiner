@@ -71,9 +71,6 @@ Requirements:
     }
 
     const output = {
-      summary: typeof parsed.summary === "string" ? parsed.summary : "",
-      pros: Array.isArray(parsed.pros) ? parsed.pros : [],
-      cons: Array.isArray(parsed.cons) ? parsed.cons : [],
       reviewContent: typeof parsed.reviewContent === "string" ? parsed.reviewContent : "",
       photoSuggestions: Array.isArray(parsed.photoSuggestions) ? parsed.photoSuggestions : [],
     }
@@ -88,5 +85,4 @@ Requirements:
 
   }
 }
-
 

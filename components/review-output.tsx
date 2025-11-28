@@ -1,38 +1,43 @@
 import * as React from "react"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { CheckSquare } from "lucide-react"
 
-export interface ReviewResult {
+export interface ReviewOutputProps {
   reviewContent: string
   photoSuggestions: string[]
 }
 
-interface ReviewOutputProps {
-  result: ReviewResult
-}
-
-export function ReviewOutput({ result }: ReviewOutputProps) {
+export function ReviewOutput({ reviewContent, photoSuggestions }: ReviewOutputProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Refined Review</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <div>
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg">Refined Review</CardTitle>
+        </CardHeader>
+        <CardContent>
           <p className="whitespace-pre-wrap text-sm leading-6 text-gray-800">
-            {result.reviewContent}
+            {reviewContent}
           </p>
-        </div>
-        {Array.isArray(result.photoSuggestions) && result.photoSuggestions.length > 0 && (
-          <div className="space-y-2">
-            <h4 className="text-sm font-medium">Photo Suggestions</h4>
-            <ul className="list-disc pl-5 text-sm text-gray-700">
-              {result.photoSuggestions.map((s, i) => (
-                <li key={i}>{s}</li>
+        </CardContent>
+      </Card>
+
+      {Array.isArray(photoSuggestions) && photoSuggestions.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg">Photo Checklist</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {photoSuggestions.map((s, i) => (
+                <li key={i} className="flex items-start gap-2 text-sm text-gray-800">
+                  <CheckSquare className="mt-0.5 h-4 w-4 text-gray-600" />
+                  <span>{s}</span>
+                </li>
               ))}
             </ul>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   )
 }

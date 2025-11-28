@@ -4,13 +4,14 @@ import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { ToneSelector, type Tone } from "@/components/tone-selector"
-import { ReviewOutput, type ReviewResult } from "@/components/review-output"
+import { ReviewOutput, type ReviewOutputProps } from "@/components/review-output"
 import { Sparkles, Loader2 } from "lucide-react"
 
 export function ReviewRefiner() {
   const [notes, setNotes] = useState("")
   const [tone, setTone] = useState<Tone>("professional")
-  const [result, setResult] = useState<ReviewResult | null>(null)
+  const [reviewContent, setReviewContent] = useState<string>("")
+  const [photoSuggestions, setPhotoSuggestions] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
@@ -19,7 +20,8 @@ export function ReviewRefiner() {
 
     setIsLoading(true)
     setError(null)
-    setResult(null)
+    setReviewContent("")
+    setPhotoSuggestions([])
 
     try {
       const res = await fetch("/api/refine-review", {
@@ -28,17 +30,30 @@ export function ReviewRefiner() {
         body: JSON.stringify({ userInput: notes, selectedTone: tone }),
       })
 
-      if (!res.ok) {
-        const text = await res.text()
-        throw new Error(text || `Request failed with status ${res.status}`)
+      let data: any
+      try {
+        data = await res.json()
+      } catch (jsonErr) {
+        const textFallback = await res.text()
+        setReviewContent(textFallback)
+        setPhotoSuggestions([])
+        return
       }
 
-      const data = await res.json()
+      if (!res.ok) {
+        if (typeof data?.raw === "string") {
+          setReviewContent(data.raw)
+          setPhotoSuggestions([])
+          return
+        }
+        throw new Error(data?.error || `Request failed with status ${res.status}`)
+      }
 
-      const reviewContent = typeof data.reviewContent === "string" ? data.reviewContent : ""
-      const photoSuggestions = Array.isArray(data.photoSuggestions) ? data.photoSuggestions : []
+      const refined = typeof data.reviewContent === "string" ? data.reviewContent : ""
+      const photos = Array.isArray(data.photoSuggestions) ? data.photoSuggestions : []
 
-      setResult({ reviewContent, photoSuggestions })
+      setReviewContent(refined)
+      setPhotoSuggestions(photos)
     } catch (e: any) {
       setError(e?.message || "Something went wrong. Please try again.")
     } finally {
@@ -86,7 +101,11 @@ export function ReviewRefiner() {
         </Card>
       )}
 
-      {result && <ReviewOutput result={result} />}
+      {(reviewContent || photoSuggestions.length > 0) && (
+        <ReviewOutput
+          {...({ reviewContent, photoSuggestions } as ReviewOutputProps)}
+        />
+      )}
     </div>
   )
 }
