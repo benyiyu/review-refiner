@@ -31,22 +31,28 @@ export async function POST(req: Request) {
     const genAI = new GoogleGenerativeAI(apiKey)
     const model = genAI.getGenerativeModel({ model: "gemini-flash-latest" })
 
-    const systemPrompt = `You refine messy notes into a clear restaurant review.
-Return STRICT JSON only, no explanations.
-JSON schema:
+    const systemPrompt = `
+You are an expert social media editor for the Chinese market (Red/Dianping).
+User Input: ${userInput}
+Selected Tone: ${selectedTone}
+
+Task: Rewrite the messy notes into a high-quality review in **Simplified Chinese (简体中文)**.
+
+Requirements:
+1. Language: **STRICTLY Simplified Chinese (简体中文)**. Do not use English unless it's a specific brand name.
+2. Structure:
+   - Start with an engaging summary.
+   - Provide detailed pros and cons.
+   - Mention specific dishes/items if applicable.
+3. Tone: Adapt the writing style based on the "${selectedTone}" selection (e.g., use emojis for "Enthusiastic", be objective for "Professional").
+4. Photo Suggestions: Provide 3-4 specific, visual ideas for photos.
+
+**IMPORTANT: Return ONLY valid JSON in this format:**
 {
-  "summary": string,
-  "pros": string[],
-  "cons": string[],
-  "reviewContent": string,
-  "photoSuggestions": string[]
+  "reviewContent": "...(Chinese text)...",
+  "photoSuggestions": ["...(Chinese text)...", "...(Chinese text)..."]
 }
-Rules:
-- Keep tone aligned with the provided tone option.
-- Be concise but vivid; avoid exaggeration.
-- Use first-person voice.
-- Photo suggestions: 3-5 specific shots.
-`
+`;
 
     const prompt = `${systemPrompt}\n\nUser Notes: ${userInput}\nTone: ${selectedTone}\nReturn ONLY JSON.`
 
